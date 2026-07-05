@@ -68,19 +68,7 @@ $$
 This is exactly a 2D rotation:
 
 $$
-\begin{pmatrix}
-u\\
-v
-\end{pmatrix}
-=
-\begin{pmatrix}
-\cos\theta & -\sin\theta\\
-\sin\theta & \cos\theta
-\end{pmatrix}
-\begin{pmatrix}
-t\\
-s
-\end{pmatrix}
+(u, v) = (t\cos\theta - s\sin\theta,\; t\sin\theta + s\cos\theta)
 $$
 
 So the original curve is a simpler curve rotated by $\theta$ and translated by $(X, 42)$.
@@ -92,19 +80,7 @@ So the original curve is a simpler curve rotated by $\theta$ and translated by $
 Because rotation matrices are easy to invert, we can recover the hidden coordinates from any guessed $\theta$ and $X$:
 
 $$
-\begin{pmatrix}
-t\\
-s
-\end{pmatrix}
-=
-\begin{pmatrix}
-\cos\theta & \sin\theta\\
--\sin\theta & \cos\theta
-\end{pmatrix}
-\begin{pmatrix}
-u\\
-v
-\end{pmatrix}
+(t, s) = (u\cos\theta + v\sin\theta,\; -u\sin\theta + v\cos\theta)
 $$
 
 This gives:
