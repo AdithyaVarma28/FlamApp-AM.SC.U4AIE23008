@@ -6,6 +6,18 @@ The assignment gives only the **`x, y` points**. It does not directly give the h
 
 ---
 
+## Candidate Information
+
+| Field | Details |
+|------|---------|
+| **Name** | Adithya Varma Kusampudi |
+| **Course** | B.Tech Computer Science and Engineering (Artificial Intelligence) |
+| **Roll No** | AM.SC.U4AIE23008 |
+| **College** | Amrita Vishwa Vidyapeetham, Amritapuri |
+| **Assignment** | Research & Development |
+
+---
+
 ## The Given Curve
 
 The parametric curve is:
@@ -156,6 +168,111 @@ The notebook [curve_parameter_estimation.ipynb](curve_parameter_estimation.ipynb
 
 ---
 
+## Detailed Code Process
+
+The notebook is organized so that the explanation appears in Markdown first and the matching code cell appears directly below it.
+
+### 1. Importing Libraries and Setting Bounds
+
+The notebook imports `numpy`, `pandas`, and optimization functions from `scipy.optimize`.
+
+The parameter ranges are stored as bounds:
+
+| Parameter | Bound Used in Code |
+|-----------|--------------------|
+| `theta` | $0^\circ < \theta < 50^\circ$ |
+| `M` | $-0.05 < M < 0.05$ |
+| `X` | $0 < X < 100$ |
+| `t` | $6 < t < 60$ |
+
+Since NumPy trigonometric functions use radians, the code converts the angle bounds from degrees to radians.
+
+### 2. Loading the Dataset
+
+The function `load_points()` reads `xy_data.csv` using `pandas`.
+
+The CSV has only two columns:
+
+- `x`
+- `y`
+
+The data is converted into a NumPy array so that all points can be processed at once using vectorized operations.
+
+### 3. Recovering Hidden Coordinates
+
+The function `invert_transform()` applies the inverse rotation and translation.
+
+For each point $(x_i, y_i)$, it computes:
+
+$$
+t_i = (x_i - X)\cos\theta + (y_i - 42)\sin\theta
+$$
+
+and:
+
+$$
+s_i = -(x_i - X)\sin\theta + (y_i - 42)\cos\theta
+$$
+
+This is the key step because it lets the code estimate each point's hidden `t` value without needing the CSV rows to be sorted.
+
+### 4. Measuring the Curve Residual
+
+The function `implicit_residuals()` checks whether each recovered point satisfies the original curve structure.
+
+For the correct parameters:
+
+$$
+s_i = e^{M|t_i|}\sin(0.3t_i)
+$$
+
+So the residual is:
+
+$$
+r_i = s_i - e^{M|t_i|}\sin(0.3t_i)
+$$
+
+Smaller residuals mean the guessed values of `theta`, `M`, and `X` fit the curve better.
+
+### 5. Global Search
+
+The function `differential_evolution()` performs a global search over the allowed parameter ranges.
+
+This is useful because the curve contains a sinusoidal term, so a simple local optimizer can get stuck in a poor local solution if the starting point is bad.
+
+### 6. Local Refinement
+
+After the global search finds a good region, `least_squares()` refines the parameters by minimizing the implicit residuals more accurately.
+
+This gives a strong geometric fit to the point cloud.
+
+### 7. Direct L1 Polishing
+
+The assignment score is based on L1 distance, so the notebook performs one final narrow optimization using:
+
+$$
+E_{\text{L1}} =
+\sum_{i=1}^{n}
+\left(
+|\hat{x}_i - x_i| + |\hat{y}_i - y_i|
+\right)
+$$
+
+This final step slightly reduces the score compared with using only the implicit residual.
+
+### 8. Printing the Result
+
+The final cell prints:
+
+- the fitted value of `theta` in radians
+- the fitted value of `theta` in degrees
+- the fitted value of `M`
+- the fitted value of `X`
+- the total L1 error
+- the final equation in submission format
+
+---
+
 ## Final Result
 
 The clean interpretable parameters are:
@@ -241,3 +358,20 @@ where $(\hat{x}_i, \hat{y}_i)$ are the reconstructed points from the fitted curv
 - The small remaining error is expected because the CSV values are rounded decimal numbers.
 - The final L1 polish slightly improves the score compared with only minimizing the implicit residual.
 - The recovered hidden `t` values stay inside the required range $6 < t < 60$.
+
+---
+
+## Project Files
+
+- Dataset: `xy_data.csv`
+- Notebook Solution: `curve_parameter_estimation.ipynb`
+
+---
+
+## References
+
+- Interactive Curve Visualization: [Desmos Simulation](https://www.desmos.com/calculator/ieknhex0lj)
+- NumPy Mathematical Functions Documentation: [https://numpy.org/doc/stable/reference/routines.math.html](https://numpy.org/doc/stable/reference/routines.math.html)
+- pandas `read_csv` Documentation: [https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html](https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html)
+- SciPy `differential_evolution` Documentation: [https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html)
+- SciPy `least_squares` Documentation: [https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.least_squares.html)
